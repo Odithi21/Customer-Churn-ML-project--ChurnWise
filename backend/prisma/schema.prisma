@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  customers Customer[]
+}
+
+model Customer {
+  id                 String       @id @default(cuid())
+  externalCustomerId String?      @unique
+  userId             String?
+  gender             String
+  seniorCitizen      Int
+  partner            String
+  dependents         String
+  tenure             Int
+  phoneService       String
+  multipleLines      String
+  internetService    String
+  onlineSecurity     String
+  onlineBackup       String
+  deviceProtection   String
+  techSupport        String
+  streamingTV        String
+  streamingMovies    String
+  contract           String
+  paperlessBilling   String
+  paymentMethod      String
+  monthlyCharges     Float
+  totalCharges       Float
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  user               User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  predictions        Prediction[]
+
+  @@index([userId])
+}
+
+model Prediction {
+  id                String   @id @default(cuid())
+  customerId        String
+  prediction        String
+  churnProbability  Float
+  riskLevel         String
+  modelUsed         String
+  predictedAt       DateTime @default(now())
+  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, predictedAt])
+  @@index([prediction])
+  @@index([riskLevel])
+}
